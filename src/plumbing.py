@@ -8,5 +8,5 @@ class NtryFilesys:
     def create 
 
 def create_empty_filesystem():
-    #TODO: create files, check state, call hashing/config helpers, etc
+    #TODO: create files, check state, call hashing/config helpers, etc.
     pass
