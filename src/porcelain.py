@@ -21,7 +21,11 @@ def init():
 def base():
     try:
         project_root = NtryFilesys.find_project_root()
+        fs = NtryFilesys(project_root)
     except FileNotFoundError as error:
         typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
-
+    
+    enteries = fs.get_entries()
+    fs.store_tree(enteries)
+    
