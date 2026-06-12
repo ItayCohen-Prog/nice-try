@@ -19,4 +19,4 @@ def build_tree(entries: list[tuple[str, str, str]]) -> bytes:
         entry = f"{mode} {name}\0".encode() + bytes.fromhex(hash)
         tree_content += entry
 
-    return build_stored_object("tree", tree_content)
+    return build_stored_object("tree", tree_content)ע
