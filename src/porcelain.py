@@ -16,3 +16,12 @@ def init():
         raise typer.Exit(code=1)
 
     typer.echo(f"Initialized ntry at {ntry_dir}")
+
+@app.command()
+def base():
+    try:
+        project_root = NtryFilesys.find_project_root()
+    except FileNotFoundError as error:
+        typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)
+

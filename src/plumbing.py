@@ -8,6 +8,20 @@ class NtryFilesys:
             root = Path.cwd()
         self.root = root
         self.ntry_dir = root / ".nice-try"
+    
+    @classmethod
+    def find_project_root(cls, start: Path | None = None) -> Path:
+        if start is None:
+            start = Path.cwd()
+
+        current = start.resolve()
+
+        for folder in [current, *current.parents]:
+            if (folder / ".nice-try").is_dir():
+                return folder
+
+        raise FileNotFoundError("Not inside a nice-try project. Run `ntry init` first.")
+
 
     def create_empty_filesystem(self) -> Path:
 
