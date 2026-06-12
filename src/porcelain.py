@@ -15,4 +15,4 @@ def init():
         typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    print("Initialized nice-try project.")
+    typer.echo(f"Initialized ntry at {ntry_dir}")
