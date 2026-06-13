@@ -26,6 +26,6 @@ def base():
         typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
     
-    enteries = fs.get_entries()
-    fs.store_tree(enteries)
+    root_tree_hash = fs.write_tree_from_directory()
+    typer.echo(f"Wrote base tree {root_tree_hash}")
     
