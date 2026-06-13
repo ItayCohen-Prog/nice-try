@@ -1,5 +1,7 @@
 import fnmatch
+import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 import hashing
@@ -107,6 +109,26 @@ class NtryFilesys:
             entries.append((kind, item.name, object_hash))
 
         return self.store_object(OBJECT_TYPE_TREE, hashing.build_tree_content(entries))
+
+    def store_base(self, root_hash: str) -> Path:
+        now = datetime.now().astimezone()
+        milliseconds = now.microsecond // 1000
+        timestamp = f"{now.strftime('%m/%d/%y')} {now.strftime('%H:%M:%S')}.{milliseconds:03d}"
+        base_data = {
+            "root_tree_hash": root_hash,
+            "date": timestamp,
+        }
+
+        base_dir = self.ntry_dir / "bases"
+
+        filename_stem = f"{now.strftime('%d%m%Y%H%M%S')}{milliseconds:03d}"
+        base_path = base_dir / f"{filename_stem}.json"
+
+        with base_path.open("x", encoding="utf-8") as f:
+            json.dump(base_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+
+        return base_path
 
     def create_empty_filesystem(self) -> Path:
 

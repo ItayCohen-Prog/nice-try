@@ -27,5 +27,7 @@ def base():
         raise typer.Exit(code=1)
     
     root_tree_hash = fs.write_tree_from_directory()
+    base_path = fs.store_base(root_tree_hash)
+
     typer.echo(f"Wrote base tree {root_tree_hash}")
-    
+    typer.echo(f"Stored base at {base_path}")
