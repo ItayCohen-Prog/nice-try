@@ -1,7 +1,7 @@
 # Top level, user facing API for the library. 
 
 import typer
-from plumbing import NtryFilesys
+from plumbing import NtryFilesys, NtryLayoutError
 
 app = typer.Typer()
 
@@ -25,9 +25,10 @@ def base():
     except FileNotFoundError as error:
         typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
-    
-    root_tree_hash = fs.write_tree_from_directory()
-    base_path = fs.store_base(root_tree_hash)
 
-    typer.echo(f"Wrote base tree {root_tree_hash}")
-    typer.echo(f"Stored base at {base_path}")
+    try:
+        root_tree_hash = fs.write_tree_from_directory()
+        fs.store_base(root_tree_hash)
+    except NtryLayoutError as error:
+        typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)

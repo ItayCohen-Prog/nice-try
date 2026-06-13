@@ -14,28 +14,42 @@ from constants import (
 )
 
 
+class NtryLayoutError(Exception):
+    pass
+
+
 class NtryFilesys:
     def __init__(self, root: Path | None = None):
         if root is None:
             root = Path.cwd()
         self.root = root
         self.ntry_dir = root / ".nice-try"
-        self.ignore_list = self.ensure_ntryignore()
-    
-    def ensure_ntryignore(self) -> list[str]:
-        ignore_path = self.root / ".ntryignore"
+        self.ignore_list = self.load_ntryignore()
 
-        if not ignore_path.exists():
-            ignore_path.write_text(DEFAULT_NTRYIGNORE, encoding="utf-8")
-            content = DEFAULT_NTRYIGNORE
-        else:
-            content = ignore_path.read_text(encoding="utf-8")
-
+    def parse_ntryignore(self, content: str) -> list[str]:
         return [
             line.strip()
             for line in content.splitlines()
             if line.strip() and not line.strip().startswith("#")
         ]
+
+    def load_ntryignore(self) -> list[str]:
+        ignore_path = self.root / ".ntryignore"
+
+        if ignore_path.exists():
+            content = ignore_path.read_text(encoding="utf-8")
+        else:
+            content = DEFAULT_NTRYIGNORE
+
+        return self.parse_ntryignore(content)
+
+    def create_default_ntryignore(self) -> None:
+        ignore_path = self.root / ".ntryignore"
+
+        if not ignore_path.exists():
+            ignore_path.write_text(DEFAULT_NTRYIGNORE, encoding="utf-8")
+
+        self.ignore_list = self.load_ntryignore()
 
     def is_ignored(self, path: Path) -> bool:
         relative_path = path.relative_to(self.root).as_posix()
@@ -67,10 +81,16 @@ class NtryFilesys:
     def store_object(self, object_type: str, content: bytes) -> str:
         stored_object = hashing.build_stored_object(object_type, content)
         object_hash = hashing.hash_bytes(stored_object)
-        object_path = self.ntry_dir / "objects" / OBJECT_TYPE_TO_DIR[object_type] / object_hash
+        object_dir = self.ntry_dir / "objects" / OBJECT_TYPE_TO_DIR[object_type]
+
+        if not object_dir.is_dir():
+            raise NtryLayoutError(
+                f"Missing nice-try object directory: {object_dir}. Run `ntry init` first."
+            )
+
+        object_path = object_dir / object_hash
 
         if not object_path.exists():
-            object_path.parent.mkdir(parents=True, exist_ok=True)
             with object_path.open("wb") as f:
                 f.write(stored_object)
 
@@ -120,15 +140,26 @@ class NtryFilesys:
         }
 
         base_dir = self.ntry_dir / "bases"
+        if not base_dir.is_dir():
+            raise NtryLayoutError(
+                f"Missing nice-try bases directory: {base_dir}. Run `ntry init` first."
+            )
 
-        filename_stem = f"{now.strftime('%d%m%Y%H%M%S')}{milliseconds:03d}"
-        base_path = base_dir / f"{filename_stem}.json"
+        filename_stem = f"{now.strftime('%Y%m%d%H%M%S')}{milliseconds:03d}"
+        filename_width = len(filename_stem)
+        filename_number = int(filename_stem)
 
-        with base_path.open("x", encoding="utf-8") as f:
-            json.dump(base_data, f, indent=2, ensure_ascii=False)
-            f.write("\n")
+        while True:
+            base_path = base_dir / f"{filename_number:0{filename_width}d}.json"
 
-        return base_path
+            try:
+                with base_path.open("x", encoding="utf-8") as f:
+                    json.dump(base_data, f, indent=2, ensure_ascii=False)
+                    f.write("\n")
+            except FileExistsError:
+                filename_number += 1
+            else:
+                return base_path
 
     def create_empty_filesystem(self) -> Path:
 
@@ -143,5 +174,6 @@ class NtryFilesys:
 
         (self.ntry_dir / "bases").mkdir()
         (self.ntry_dir / "tries").mkdir()
+        self.create_default_ntryignore()
 
         return self.ntry_dir
