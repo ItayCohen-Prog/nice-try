@@ -10,9 +10,4 @@ wheels/
 .venv
 
 # Teach skill workspace files
-MISSION.md
-RESOURCES.md
-NOTES.md
-llm-lessons/
-reference/
-learning-records/
+llm-teacher/
