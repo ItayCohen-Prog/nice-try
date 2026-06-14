@@ -169,7 +169,7 @@ class NtryFilesys:
         self.ntry_dir.mkdir()
 
         (self.ntry_dir / "objects").mkdir()
-        for object_dir in OBJECT_TYPE_TO_DIR.values():
+        for object_dir in dict.fromkeys(OBJECT_TYPE_TO_DIR.values()):
             (self.ntry_dir / "objects" / object_dir).mkdir()
 
         (self.ntry_dir / "bases").mkdir()

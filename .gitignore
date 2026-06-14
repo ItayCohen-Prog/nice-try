@@ -11,3 +11,7 @@ wheels/
 
 # Teach skill workspace files
 llm-teacher/
+
+# Nice Try local state
+.nice-try/
+.ntryignore

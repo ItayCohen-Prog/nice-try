@@ -9,7 +9,7 @@ OBJECT_TYPE_TREE = "tree"
 
 OBJECT_TYPE_TO_DIR = {
     OBJECT_TYPE_BLOB: "blobs",
-    OBJECT_TYPE_SYMLINK: "symls",
+    OBJECT_TYPE_SYMLINK: "blobs",
     OBJECT_TYPE_TREE: "trees",
 }
 
