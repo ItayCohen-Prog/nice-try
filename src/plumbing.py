@@ -176,4 +176,4 @@ class NtryFilesys:
         (self.ntry_dir / "tries").mkdir()
         self.create_default_ntryignore()
 
-        return self.ntry_dir
+        return self.ntry_dir 
